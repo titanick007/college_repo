@@ -27,36 +27,43 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Listening on port number 8080\n");
-
-    int client_socket = accept(server_socket, NULL, NULL);
-    if (client_socket == -1) {
+    int client_socket1 = accept(server_socket, NULL, NULL);
+    if (client_socket1 == -1) {
         printf("Accept failed\n");
         exit(EXIT_FAILURE);
-    } 
+    }
 
-    char buffer[1024];
-    int msg_receive = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+    char response_client1;
+    int msg_receive = recv(client_socket1, &response_client1, sizeof(response_client1), 0);
     if (msg_receive == -1) {
-        printf("Message not received\n");
+        printf("\nMessage not received\n");
         exit(EXIT_FAILURE);
     }
-    buffer[msg_receive] = '\0'; // Null-terminate the received data
-    printf("Received message from client: %s\n", buffer);
+    printf("\nReceived message from client 1: %c\n", response_client1);
 
-        char message[1024];
-    printf("Enter message for client: ");
-    fgets(message, sizeof(message), stdin);
 
-    int msg_sent = send(client_socket, message, strlen(message), 0);
-    if (msg_sent == -1) {
+    close(client_socket1);
+    
+    if (response_client1 == 'z')
+        response_client1 = 'a';
+    else if (response_client1 == 'Z')
+        response_client1 = 'A';
+    else
+        response_client1 = (char)(((int)response_client1) + 1);
+
+    int client_socket2 = accept(server_socket, NULL, NULL);
+    if (client_socket2 == -1) {
+        printf("Accept failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int new_msg_sent = send(client_socket2, &response_client1, sizeof(response_client1), 0);
+    if (new_msg_sent == -1) {
         printf("Message not sent\n");
         exit(EXIT_FAILURE);
     }
-    printf("Message sent to client\n");
-        
+    printf("\nMessage sent to client 2\n");
 
-    close(client_socket);
     close(server_socket);
 
     return 0;

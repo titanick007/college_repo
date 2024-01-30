@@ -23,27 +23,20 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    char message;
+    printf("\nEnter alphabet for client 1 : \n");
+    scanf(" %c", &message);
+    while (getchar() != '\n');
 
-    char message[1024];
-    printf("Enter message for server: ");
-    fgets(message, sizeof(message), stdin);
 
-    int bytes_sent = send(client_socket, message, strlen(message), 0);
+    
+    int bytes_sent = send(client_socket, &message, sizeof(message), 0);
     if (bytes_sent == -1) {
         printf("Message not sent\n");
         exit(EXIT_FAILURE);
     }
-    printf("Message sent to server\n");
+    printf("\nAltered message sent to server\n\n");
     
-    
-    char buffer[1024];
-    int bytes_receive = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
-    if (bytes_receive == -1) {
-        printf("Message not received\n");
-        exit(EXIT_FAILURE);
-    }
-    buffer[bytes_receive] = '\0'; // Null-terminate the received data
-    printf("Received message from server: %s\n", buffer);
 
     close(client_socket);
 
