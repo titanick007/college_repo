@@ -35,7 +35,7 @@ int main() {
         printf("Message not sent\n");
         exit(EXIT_FAILURE);
     }
-    printf("\nAltered message sent to server\n\n");
+    printf("\nmessage sent to server\n\n");
     
 
     close(client_socket);
