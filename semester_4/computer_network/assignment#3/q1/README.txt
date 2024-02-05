@@ -1,5 +1,5 @@
 The client takes an integer input and sends it to the server.
-The server then finds the matching integer and its corresponding name.
+The server then finds the matching integer and its corresponding name in file.txt.
 Its send the name as a string back to the client and the client displays it.
 If the integer doesn't exist, the client displays "Address not found".
 
