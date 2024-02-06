@@ -25,5 +25,6 @@ int main(){
     for(int i=0;i<8;++i){
         cout<<arr[i]<<" ";
     }
+    cout<<endl;
     return 0;
 }
