@@ -5,76 +5,79 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-int main() {
+#define BUFFER_SIZE 1024
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s [port_number]\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    // Create socket
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
-        printf("Serve failure\n");
+        perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
 
-    struct sockaddr_in server_address;
-    server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(8080);
-    inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr);
+    // Bind to address and port
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_port = htons(atoi(argv[1]));
 
-    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
-        printf("Bind failed\n");
+    if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+        perror("Bind failed");
         exit(EXIT_FAILURE);
     }
 
+    // Listen for incoming connections
     if (listen(server_socket, 5) == -1) {
-        printf("Listen failed\n");
+        perror("Listen failed");
         exit(EXIT_FAILURE);
     }
 
-    printf("Listening on port number 8080\n");
+    printf("Server listening on port %d\n", atoi(argv[1]));
 
-    int client_socket = accept(server_socket, NULL, NULL);
+    // Accept connections
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    int client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_len);
     if (client_socket == -1) {
-        printf("Accept failed\n");
-        exit(EXIT_FAILURE);
-    } 
-
-    char*buffer;
-    int msg_receive = recv(client_socket, &buffer, sizeof(buffer), 0);
-    if (msg_receive == -1) {
-        printf("Message not received\n");
+        perror("Accept failed");
         exit(EXIT_FAILURE);
     }
 
-    FILE*fptr;
-    fptr=fopen(buffer,"r");
-    if(fptr==NULL){
-        printf("Couldn't open file\n");
+    // Receive file name from client
+    char file_name[256];
+    long bytes_received = recv(client_socket, file_name, sizeof(file_name), 0);
+    if (bytes_received == -1) {
+        perror("Receive failed");
+        exit(EXIT_FAILURE);
+    }
+    file_name[bytes_received] = '\0';
+
+    // Open the requested file
+    FILE *file = fopen(file_name, "r");
+    if (file == NULL) {
+        perror("File open failed");
         exit(EXIT_FAILURE);
     }
 
-     // Determine the size of the file.
-    fseek(fptr, 0, SEEK_END);
-    long fsize = ftell(fptr);
-    fseek(fptr, 0, SEEK_SET);
-
-    // Allocate a char array of the same size as the file.
-    char *file_contents = malloc(fsize + 1);
-    if (file_contents == NULL) {
-      printf("Error allocating memory.\n");
-      fclose(fptr);
-      return 1;
+    // Send file contents to client
+    char buffer[BUFFER_SIZE];
+    ssize_t bytes_read;
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        if (send(client_socket, buffer, bytes_read, 0) == -1) {
+            perror("Send failed");
+            exit(EXIT_FAILURE);
+        }
     }
 
-    // Read the contents of the file into the char array.
-    fread(file_contents, fsize, 1, fptr);
-    file_contents[fsize] = '\0'; // Add a null terminator to the end of the string.
+    printf("File sent successfully\n");
 
-
-    int msg_sent=send(client_socket,file_contents,sizeof(file_contents),0);
-    if (msg_sent == -1) {
-        printf("Message not sent\n");
-        exit(EXIT_FAILURE);
-    }
-
-        
-
+    // Close sockets and file
+    fclose(file);
     close(client_socket);
     close(server_socket);
 
