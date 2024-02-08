@@ -18,7 +18,7 @@ int main() {
     memset((void *) &server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(8080);
-    server_address.sin_addr.s_addr = INADDR_ANY; // Use INADDR_ANY to bind to all available interfaces
+    server_address.sin_addr.s_addr = INADDR_ANY; 
     inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr);
     if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
         printf("Bind failed\n");
@@ -45,7 +45,7 @@ int main() {
 
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(8081);
-    server_address.sin_addr.s_addr = INADDR_ANY; // Use INADDR_ANY to bind to all available interfaces
+    server_address.sin_addr.s_addr = INADDR_ANY; 
     inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr);
     
 
