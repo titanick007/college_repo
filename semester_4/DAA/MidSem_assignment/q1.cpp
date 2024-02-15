@@ -1,51 +1,70 @@
 #include <iostream>
 #include <chrono>
+#include <algorithm>
 #include <vector>
-using namespace std;
+#include <cstdlib>
+#include <string>
+
 using namespace std::chrono;
+using namespace std;
 
-vector<int> largestSortedSubsequence(int arr[],int n){
-    int length=1;       //length of largest sorted subarray
-    int temp_len=1;     //temporary length for each sorted subarray
-    vector<int> sorted_array;   //storing largest sorted subarray
-    
+pair<int, vector<int>> longestIncreasingSubsequences(vector<int>& arr) {
+    int n = arr.size();
+    vector<int> dp(n, 1);  // Initialize the dynamic programming array to store lengths
+    vector<int> startIndices(n, 0);  // Initialize an array to store start indices
 
-    for(int i=0;i<n;++i){
-        vector<int> temp_sorted_subarray;       //temp variable to store sorted subarray. Also clears the contents of the previous subarray
-        temp_sorted_subarray.push_back(arr[i]); //first element is sorted and is a sorted subarray
-        temp_len=1;
-        for(int j=i;j<n-1;++j){
-            if(arr[j+1]>=arr[j]){
-                ++temp_len;
-                temp_sorted_subarray.push_back(arr[j+1]);
+    for (int i = 1; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            if (arr[i] > arr[j] && dp[i] < dp[j] + 1) {
+                dp[i] = dp[j] + 1;
+                startIndices[i] = j;
             }
-            else break;
-        }
-        if(temp_len>=length){
-            length=temp_len;
-            sorted_array=temp_sorted_subarray;
         }
     }
-    return sorted_array;
+
+    int maxLength = *max_element(dp.begin(), dp.end());
+    vector<int> longestStartIndices;
+    for (int i = 0; i < n; ++i) {
+        if (dp[i] == maxLength) {
+            longestStartIndices.push_back(i);
+        }
+    }
+
+    // Construct the longest increasing subsequence
+    vector<int> longestSubsequence;
+    for (int i : longestStartIndices) {
+        vector<int> subsequence;
+        while (subsequence.size() < maxLength) {
+            subsequence.push_back(arr[i]);
+            i = startIndices[i];
+        }
+        reverse(subsequence.begin(), subsequence.end());
+        longestSubsequence.insert(longestSubsequence.end(), subsequence.begin(), subsequence.end());
+    }
+
+    return make_pair(maxLength, longestSubsequence);
 }
 
-
-int main(){
-    int arr[]={10,9,8,7,6,5,4,3,2,1};
-    int n=sizeof(arr)/sizeof(arr[0]);
+int main() {
+    vector<int> arr;
+    int n;
+    cout<<"Enter no of elements\n\n";
+    cin>>n;
+    for(int i=0;i<n;++i){
+        arr.push_back(rand());
+    }
     auto start=high_resolution_clock::now();
-
-    vector<int> largest_Sorted_Subarray=largestSortedSubsequence(arr,10);
-
+    auto result = longestIncreasingSubsequences(arr);
     auto stop=high_resolution_clock::now();
     auto duration=duration_cast<microseconds>(stop-start);
-    cout<<"\nlargest sorted subsequence in this array is\n\n ";
-    for(int i=0;i<largest_Sorted_Subarray.size();++i){
-        cout<<largest_Sorted_Subarray[i]<<" ";
+    cout << "Length of the largest sorted subsequence: " << result.first << endl;
+    cout << "Largest sorted subsequence: ";
+    for (int i : result.second) {
+        cout << i << " ";
     }
+    cout << endl;
 
+    cout<<"Time taken by algorithm: "<<duration.count()<<" microseconds\n\n";
 
-
-    cout << "\n\nTime taken for algorithm: " << duration.count() << " microseconds" << endl << endl;
-
+    return 0;
 }

@@ -20,6 +20,12 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    int enable_reuse = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable_reuse, sizeof(enable_reuse)) == -1) {
+        printf("setsockopt failed\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Bind to address and port
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;

@@ -12,6 +12,12 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    int enable_reuse = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable_reuse, sizeof(enable_reuse)) == -1) {
+        printf("setsockopt failed\n");
+        exit(EXIT_FAILURE);
+    }
+
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(8080);

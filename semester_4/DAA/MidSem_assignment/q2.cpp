@@ -1,12 +1,15 @@
 #include <iostream>
+#include <vector>
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 
-using namespace std::chrono;
+#define INT_MAX 100000
 using namespace std;
+using namespace std::chrono;
 
-int NumSwapsBubbleSort(int arr[], int n) {
-    int swapCount = 0;
+void NumSwapsBubbleSort(vector<int>& arr, int n, int& swapCount) {
+    swapCount = 0;
     for(int i = 0; i < n-1; ++i) {
         for(int j = 0; j < n-i-1; ++j) {
             if(arr[j] > arr[j+1]) {
@@ -15,11 +18,10 @@ int NumSwapsBubbleSort(int arr[], int n) {
             }
         }
     }
-    return swapCount;
 }
 
-int NumSwapsInsertionSort(int arr[], int n) {
-    int swapCount = 0;
+void NumSwapsInsertionSort(vector<int>& arr, int n, int& swapCount) {
+    swapCount = 0;
     for(int i = 1; i < n; ++i) {
         int key = arr[i];
         int j = i - 1;
@@ -30,11 +32,10 @@ int NumSwapsInsertionSort(int arr[], int n) {
         }
         arr[j+1] = key;
     }
-    return swapCount;
 }
 
-int NumSwapsSelectionSort(int arr[], int n) {
-    int swapCount = 0;
+void NumSwapsSelectionSort(vector<int>& arr, int n, int& swapCount) {
+    swapCount = 0;
     for(int i = 0; i < n-1; ++i) {
         int minIndex = i;
         for(int j = i+1; j < n; ++j) {
@@ -47,43 +48,43 @@ int NumSwapsSelectionSort(int arr[], int n) {
             ++swapCount;
         }
     }
-    return swapCount;
 }
 
 int main() {
-    int arr1[1000];
-    int arr2[1000];
-    int arr3[1000];
-    for(int i = 0; i < 1000; ++i) {
-        arr1[i] = rand();
-        arr2[i] = arr1[i];
-        arr3[i] = arr1[i];
+    int n;
+    cout<<"Enter number of elements: ";
+    cin>>n;
+    vector<int> arr1, arr2, arr3;
+    for(int i = 0; i < n; ++i) {
+        arr1.push_back(rand());
+        arr2.push_back(arr1[i]);
+        arr3.push_back(arr1[i]);
     }
-    int numSwaps = 0;
 
-    //number of swaps in bubble sort
-    auto start1 = high_resolution_clock::now();
-    numSwaps = NumSwapsBubbleSort(arr1, 1000);
-    auto stop1 = high_resolution_clock::now();
-    auto duration1 = duration_cast<milliseconds>(stop1 - start1);
-    cout << "Number of swaps in Bubble sort is " << numSwaps << endl;
-    cout << "Time taken by Bubble sort: " << duration1.count() << " milliseconds" << endl << endl;
+    int swapCount;
+    auto start = high_resolution_clock::now();
+    NumSwapsBubbleSort(arr1, n, swapCount);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "Bubble Sort:" << endl;
+    cout << "Number of swaps: " << swapCount << endl;
+    cout << "Time taken: " << duration.count() << " microseconds" << endl << endl;
 
-    //number of swaps in insertion sort
-    auto start2 = high_resolution_clock::now();
-    numSwaps = NumSwapsInsertionSort(arr2, 1000);
-    auto stop2 = high_resolution_clock::now();
-    auto duration2 = duration_cast<milliseconds>(stop2 - start2);
-    cout << "Number of swaps in Insertion sort is " << numSwaps << endl;
-    cout << "Time taken by Insertion sort: " << duration2.count() << " milliseconds" << endl << endl;
+    start = high_resolution_clock::now();
+    NumSwapsInsertionSort(arr2, n, swapCount);
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Insertion Sort:" << endl;
+    cout << "Number of swaps: " << swapCount << endl;
+    cout << "Time taken: " << duration.count() << " microseconds" << endl << endl;
 
-    //number of swaps in selection sort
-    auto start3 = high_resolution_clock::now();
-    numSwaps = NumSwapsSelectionSort(arr3, 1000);
-    auto stop3 = high_resolution_clock::now();
-    auto duration3 = duration_cast<milliseconds>(stop3 - start3);
-    cout << "Number of swaps in Selection sort is " << numSwaps << endl;
-    cout << "Time taken by Selection sort: " << duration3.count() << " milliseconds" << endl << endl;
+    start = high_resolution_clock::now();
+    NumSwapsSelectionSort(arr3, n, swapCount);
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Selection Sort:" << endl;
+    cout << "Number of swaps: " << swapCount << endl;
+    cout << "Time taken: " << duration.count() << " microseconds" << endl << endl;
 
     return 0;
 }
