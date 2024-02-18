@@ -1,52 +1,83 @@
+#include <arpa/inet.h> 
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
+#include <strings.h>
 #include <sys/socket.h>
-
-int main() {
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1) {
-        printf("Client failure\n");
-        exit(EXIT_FAILURE);
+#include <signal.h>
+#include <unistd.h>
+#define MAX 80
+#define PORT 8080
+#define SA struct sockaddr
+void func(int sockfd)
+{
+    
+    int n;
+    int pid=fork();
+    if(pid==0){
+        char buff[MAX];
+        for (;;) {
+            bzero(buff, sizeof(buff));
+            n = 0;
+            while ((buff[n++] = getchar()) != '\n')
+                ;
+            write(sockfd, buff, sizeof(buff));  
+            if ((strncmp(buff, "exit", 4)) == 0) {
+                printf("Client Exit...\n");
+                kill(pid,SIGKILL);
+                exit(0);
+            }
+        }   
     }
-
-    struct sockaddr_in server_address;
-    server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(8080);
-    inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr);
-
-    int connectStatus = connect(client_socket, (struct sockaddr*)&server_address, sizeof(server_address));
-    if (connectStatus == -1) {
-        printf("Connection failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    char message[1024];
-
-    while(1){
-        printf("Enter message for server: ");
-        fgets(message, sizeof(message), stdin);
-
-        int bytes_sent = send(client_socket, message, strlen(message), 0);
-        if (bytes_sent == -1) {
-            printf("Message not sent\n");
-            exit(EXIT_FAILURE);
+    else{
+        char buff[MAX];
+        for (;;) {
+            bzero(buff, sizeof(buff));
+            read(sockfd, buff, sizeof(buff));
+            printf("You received a new message: %s", buff);
+            if ((strncmp(buff, "exit", 4)) == 0) {
+                printf("Client Exit...\n");
+                kill(pid,SIGKILL);
+                exit(0);
+            }
         }
-        printf("Message sent to server\n\n");
-
-
-        int bytes_receive = recv(client_socket, message, sizeof(message), 0);
-        if (bytes_receive == -1) {
-            printf("Message not received\n");
-            exit(EXIT_FAILURE);
-        }
-        message[bytes_receive] = '\0'; // Null-terminate the received data
-        printf("message from server: %s\n\n", message);
     }
+    
+}
 
-    close(client_socket);
+int main()
+{
+    int sockfd, connfd;
+    struct sockaddr_in servaddr, cli;
 
-    return 0;
+    // socket create and verification
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        printf("socket creation failed...\n");
+        exit(0);
+    }
+    else
+        printf("Socket successfully created..\n");
+    bzero(&servaddr, sizeof(servaddr));
+
+    // assign IP, PORT
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    servaddr.sin_port = htons(PORT);
+
+    // connect the client socket to server socket
+    if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr))
+        != 0) {
+        printf("connection with the server failed...\n");
+        exit(0);
+    }
+    else
+        printf("connected to the server..\n");
+
+    // function for chat
+    func(sockfd);
+
+    // close the socket
+    close(sockfd);
 }

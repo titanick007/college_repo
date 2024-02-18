@@ -1,33 +1,30 @@
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 
 
-void BubbleSort(int arr[],int n){
+void Bubblesort(int arr[], int n){
     for(int i=0;i<n;++i){
-        int start=0;
-        int j=start,k=j+1 ;
-        while(j<n&&k<=n){
-            if(arr[j]>arr[k])swap(arr[j],arr[k]);
-            ++j;++k;
+        for(int j=0;j<n;++j){
+            if(arr[j+1]<arr[j])swap(arr[j+1],arr[j]);
         }
         --n;
     }
 }
 
+
+void printarr(int arr[],int n){
+    for(int i=0;i<n;++i){
+        cout<<arr[i]<<" ";
+    }
+    cout<<endl;
+}
 int main(){
-    int arr[8]={8,5,4,37,3,7,19,11};
-    for(int i=0;i<8;++i){
-        cout<<arr[i]<<" ";
-    }
+    int arr[10]={7,5,3,22,1,4,8,3,10,6};
 
-    cout<<endl;
-    BubbleSort(arr,8);
-    cout<<"sorted array\n";
+    cout<<"Unsorted array\n";
+    printarr(arr,10);
 
-    for(int i=0;i<8;++i){
-        cout<<arr[i]<<" ";
-    }
-    cout<<endl;
-    return 0;
+    Bubblesort(arr,10);
+    cout<<"Sorted array\n";
+    printarr(arr,10);
 }

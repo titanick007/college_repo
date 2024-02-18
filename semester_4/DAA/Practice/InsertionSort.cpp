@@ -1,28 +1,34 @@
 #include <iostream>
 #include <algorithm>
+
 using namespace std;
 
-
-void InsertionSort(int arr[],int n){
-    for(int i=0;i<n-1;++i){
-        for(int j=i+1;j<n;++j){
-            if(arr[i]>arr[j])swap(arr[i],arr[j]);
+void InsertionSort(int arr[], int n){
+    for(int i=1;i<n;++i){
+        int temp=arr[i];int j=i-1;
+        while (j>=0&&arr[j]>temp)
+        {
+            arr[j+1]=arr[j];
+            --j;
         }
+        
+        arr[j+1]=temp;
     }
 }
-
-int main(){
-    int arr[8]={8,5,4,37,3,7,19,11};
-    for(int i=0;i<8;++i){
+void printarr(int arr[],int n){
+    for(int i=0;i<n;++i){
         cout<<arr[i]<<" ";
     }
-
     cout<<endl;
-    InsertionSort(arr,8);
-    cout<<"sorted array\n";
+}
+int main(){
+    int arr[10]={7,5,3,22,1,4,8,3,10,6};
 
-    for(int i=0;i<8;++i){
-        cout<<arr[i]<<" ";
-    }
-    return 0;
+    cout<<"Unsorted array\n";
+    printarr(arr,10);
+
+    InsertionSort(arr,10);
+    cout<<"Sorted array\n";
+    printarr(arr,10);
+
 }
